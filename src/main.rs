@@ -42,8 +42,6 @@ fn get_dns_address(domain: &str) -> Result<String> {
 
 fn main() -> Result<()> {
 	let matches = command!()
-//		.author("zaqxsw")
-//		.about("CloudFlare dynamic DNS")
 		.arg(arg!(-d --domain <URL> "The domain to be updated").required(true))
 		.get_matches();
 	
