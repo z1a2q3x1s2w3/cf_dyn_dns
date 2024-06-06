@@ -45,9 +45,9 @@ cargo run
 
 The application will:
 
-    - Fetch the current WAN IP address.
-    - Retrieve the current DNS A record for the specified domain.
-    - Update the DNS A record on Cloudflare if the WAN IP address has changed.
+1. Fetch the current WAN IP address.
+2. Retrieve the current DNS A record for the specified domain.
+3. Update the DNS A record on Cloudflare if the WAN IP address has changed.
 
 ## Logging
 
@@ -57,13 +57,13 @@ Logging is configured using log4rs. Ensure you have a log4rs.yaml configuration 
 
 Contributions are welcome! Please open an issue or submit a pull request for any changes.
 
-## Acknowledgements
+## Dependencies
 
-    - reqwest: A simple HTTP and HTTPS client for Rust.
-    - serde_json: A JSON serialization and deserialization library for Rust.
-    - dotenv: A library for loading environment variables from a .env file.
-    - log: A logging facade for Rust.
-    - log4rs: A highly configurable logging framework for Rust.
+- reqwest: A simple HTTP and HTTPS client for Rust.
+- serde_json: A JSON serialization and deserialization library for Rust.
+- dotenv: A library for loading environment variables from a .env file.
+- log: A logging facade for Rust.
+- log4rs: A highly configurable logging framework for Rust.
 
 ## Troubleshooting
 
