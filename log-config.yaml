@@ -1,0 +1,19 @@
+# Configuration file for log4rs
+
+appenders:
+  file:
+    kind: file
+    path: "out.log"
+    encoder:
+      pattern: "{d} - {l} - {m}{n}"
+  stdout:
+    kind: console
+    encoder:
+      pattern: "{d} - {l} - {m}{n}"
+
+root:
+  level: debug  # Raise to info in deployment
+  appenders:
+    - file
+    - stdout  # Not required in deployment
+
