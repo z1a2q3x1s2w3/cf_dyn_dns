@@ -1,5 +1,6 @@
 use reqwest::blocking::Client;
 use serde_json::{json, Value};
+use std::collections::HashMap;
 use std::error::Error;
 use dotenv::dotenv;
 use std::env;
@@ -145,7 +146,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 	log4rs::init_file("log-config.yaml", Default::default())?;
 	
 	debug!("Setting up environment variables");
-	let domain = env::var("DOMAIN").expect("DOMAIN environment variable is required");
+	let domain_list = env::var("DOMAIN").expect("DOMAIN environment variable is required");
+	let domains: Vec<&str> = domain_list.split(',').collect();
 	let zone_id = env::var("ZONE_ID").expect("ZONE_ID environment variable is required");
 	let token = env::var("TOKEN").expect("TOKEN environment variable is required");
 	
@@ -154,16 +156,29 @@ fn main() -> Result<(), Box<dyn Error>> {
 	
 	debug!("Getting WAN address");
 	let wan_address = get_wan_address(&client)?;
-	debug!("Getting DNS address");
-	let dns_address = get_dns_address(&client, &domain)?;
 	
-	debug!("Compare WAN and DNS addresses");
-	if wan_address != dns_address {
-		info!("WAN address ({}) does not match DNS address ({})", wan_address, dns_address);
-		debug!("Setting up Cloudflare API client");
-		let cf_api_client = build_cf_api_client(&client, &domain, &zone_id, &token)?;
-		if cf_api_client.update_dns_record(&client, &wan_address)? {
-			info!("Address successfully updated to: {}", wan_address);
+	debug!("Getting DNS addresses");
+	let mut dns_addresses = HashMap::new();
+	for domain in domains.iter() {
+		debug!("Getting DNS address for {}", domain);
+		dns_addresses.insert(
+			domain,
+			get_dns_address(&client, &domain)?,
+		);
+	}
+	debug!("DNS addresses: {:?}", dns_addresses);
+	
+	debug!("Compare WAN address with DNS addresses");
+	for domain in domains.iter() {
+		if wan_address != dns_addresses[domain] {
+			info!("WAN address ({}) does not match DNS address ({}) for {}", wan_address, dns_addresses[domain], domain);
+			debug!("Setting up Cloudflare API client");
+			let cf_api_client = build_cf_api_client(&client, &domain, &zone_id, &token)?;
+			if cf_api_client.update_dns_record(&client, &wan_address)? {
+				info!("Address for {} successfully updated to: {}", domain, wan_address);
+			}
+		} else {
+			debug!("WAN address ({}) matches DNS address ({}) for {}", wan_address, dns_addresses[domain], domain);
 		}
 	}
 	
